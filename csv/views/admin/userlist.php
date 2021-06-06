@@ -36,6 +36,7 @@
                                         <th >Name</th>
                                         <th >Email</th>
                                         <th> User Type</th>
+                                        <th> Password Reset</th>
                                         <th >Action</th>
                                     </tr>  
                                 </thead>
@@ -154,13 +155,67 @@
   </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="reset_user_passwordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-default">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" id="reset_user_password_form">
+
+            <div class="form-group">
+                <input type="Password" class="form-control" name="user_password" id="user_password">
+                <input type="hidden" name="user_reset_id" id="user_reset_id">
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" id="reset_pswd_save_btn">
+            </div>
+
+        </form>                      
+      </div>
+    </div>
+  </div>
+</div>
+
 <script >
         
     $("#AddUser").on('shown.bs.modal', function(){
         $(this).find('#userfull_name').focus();
     });
     
+    $('#reset_user_password_form').submit(function(event){
 
+        event.preventDefault();
+
+        if($('#user_password').val()!=''){
+            $('#reset_pswd_save_btn').prop('disabled','disabled');
+            $.ajax({
+                    url: base_url+'admin/users/reset_user_password',
+                    type:'POST',
+                    data:$('#reset_user_password_form').serialize(),
+                    success:function(response){
+                        if(response!=''){
+                            response = JSON.parse(response);
+                            if(response.response == 'success'){
+                                $('#user_reset_id').val('');
+                                $('#reset_pswd_save_btn').prop('disabled',false);
+                                sessionStorage.setItem('success', 'success');
+                                window.location.reload(); 
+                            }else{
+                              window.location.reload();
+                              sessionStorage.setItem('success', 'error');
+                                $('#reset_pswd_save_btn').prop('disabled',false);
+                            }
+                        }
+                    }
+            });
+        }
+    });
 
     function getuserdetail(id){
     
@@ -250,6 +305,9 @@
         }    
     }
     
+    function resetuserpassword(userid){
+        $('#user_reset_id').val(userid);
+    }
 
     jQuery(document).ready(function(){
 
@@ -281,6 +339,8 @@
     });
 
 });
+
+
 
     jQuery(document).ready(function(){
 

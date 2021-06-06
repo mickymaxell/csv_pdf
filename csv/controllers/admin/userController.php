@@ -1,17 +1,17 @@
 <?php
 
-	Flight::route('/admin/users',function(){
+    Flight::route('/admin/users',function(){
 
-	    require 'config/config.php';
-	    admin_session_check();
+        require 'config/config.php';
+        admin_session_check();
 
-	    $userid = 0;
-	    include 'views/includes/admin/header.php';
-	    include 'views/includes/admin/sidebar.php';
-	    include 'views/admin/userlist.php';
-	    include 'views/includes/admin/footer.php';
+        $userid = 0;
+        include 'views/includes/admin/header.php';
+        include 'views/includes/admin/sidebar.php';
+        include 'views/admin/userlist.php';
+        include 'views/includes/admin/footer.php';
 
-	});
+    });
 
 Flight::route('/admin/userlist',function(){
 
@@ -49,6 +49,7 @@ Flight::route('/admin/userlist',function(){
         $row[]   =   $item['first_name'];
         $row[]   =   $item['email_id'];
         $row[]   =   $item['type'];
+        $row[] = '<a class="btn-sm btn btn-warning" data-toggle="modal" data-target="#reset_user_passwordModal" onclick=resetuserpassword('.$item['id'].')>Reset Password</a>';
         $row[]   = '
                <a  data-toggle="modal" title="View" data-target="#ViewuserdetailModal" onclick="viewuser('.$item['id'].')" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i></a>
                <a  data-target="#AddUser" data-toggle="modal" title="Edit" onclick="getuserdetail('.$item['id'].')" class="btn btn-sm btn-info"><i class="fa fa-edit"></i></a>
@@ -68,6 +69,32 @@ Flight::route('/admin/userlist',function(){
 
 });
 
+Flight::route('/admin/users/reset_user_password', function () {
+
+        require 'config/config.php';
+        admin_session_check();
+
+        $user_id = $_REQUEST['user_reset_id'];
+        $user_password = $_REQUEST['user_password'];
+        $respArr = array();
+
+        if($user_id!=0){
+            $data['password'] = md5($user_password);
+            $db->where('id',$user_id);
+            $insert_id = $db->update('users',$data);
+
+            if($insert_id){
+                $respArr['response'] = "success";
+                $respArr['message']  = "Details Updated";
+            }else{
+                $respArr['response'] = "error";
+                $respArr['message']  = "Failed to Update";
+            }
+        }
+
+        echo json_encode($respArr);
+
+    });
 
 Flight::route('/admin/createuser',function(){
 
@@ -85,13 +112,13 @@ Flight::route('/admin/createuser',function(){
     $userdetails    = 0;
     $usernamedata   = 0;
     if($usertype == "admin"){
-    	$data['is_admin'] = 1;
-    	$data['is_subscriber'] = 0;
-    	$data['type']     = $usertype;
+        $data['is_admin'] = 1;
+        $data['is_subscriber'] = 0;
+        $data['type']     = $usertype;
     }else if($usertype == "user"){
-    	$data['is_admin'] = 0;
-    	$data['is_subscriber'] = 1;
-    	$data['type']     = $usertype;
+        $data['is_admin'] = 0;
+        $data['is_subscriber'] = 1;
+        $data['type']     = $usertype;
     }
     if($userid > 0){
 
